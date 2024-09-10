@@ -1,0 +1,120 @@
+1. Data Import
+1.1 Import Data from Multiple Sources
+
+Open Power BI Desktop: Launch Power BI Desktop.
+
+Connect to Data Sources:
+
+From Excel:
+Go to Home > Get Data > Excel.
+Select your Excel file and load the relevant sheets.
+From SQL Database:
+Go to Home > Get Data > SQL Server.
+Enter server details and database name, then select the tables or views you need.
+Load Data:
+
+Click Load to bring the data into Power BI.
+2. Data Transformation
+2.1 Use Power Query for Data Cleaning and Transformation
+
+Open Power Query Editor:
+
+Go to Home > Transform Data > Transform Data.
+Merge Tables:
+
+Go to Home > Merge Queries.
+Select tables to merge and define the join conditions (e.g., matching sales data with customer data).
+Filter Data:
+
+Apply filters to remove irrelevant or erroneous data (e.g., exclude records with null values).
+Create Calculated Columns:
+
+Go to Add Column > Custom Column.
+Define new columns using custom formulas (e.g., calculate profit margin).
+Close and Apply:
+
+Click Close & Apply to load the transformed data back into Power BI.
+3. Data Modeling
+3.1 Establish Relationships
+
+Manage Relationships:
+
+Go to Model view.
+Drag and drop to create relationships between tables (e.g., linking sales and customers by customer ID).
+Ensure Referential Integrity:
+
+Verify that relationships are correctly defined and there are no orphan records.
+3.2 Create Measures Using DAX
+
+Define Measures:
+
+Go to Model view, select a table, and click New Measure.
+Create Key Performance Indicators (KPIs):
+
+Total Sales:
+
+dax
+Copy code
+Total Sales = SUM(Sales[SalesAmount])
+Average Order Value:
+
+dax
+Copy code
+Average Order Value = AVERAGE(Sales[SalesAmount])
+Sales Growth:
+
+dax
+Copy code
+Sales Growth = (SUM(Sales[SalesAmount]) - CALCULATE(SUM(Sales[SalesAmount]), PREVIOUSMONTH(Sales[Date]))) / CALCULATE(SUM(Sales[SalesAmount]), PREVIOUSMONTH(Sales[Date]))
+4. Visualization
+4.1 Design the Dashboard
+
+Add Visualizations:
+
+Bar Chart:
+Drag SalesAmount to the Values field and ProductCategory to the Axis field.
+Line Chart:
+Drag Date to the Axis field and Total Sales to the Values field.
+Pie Chart:
+Drag SalesAmount to Values and ProductCategory to Legend.
+Map:
+Drag Country to Location and Total Sales to Values.
+Customize Visuals:
+
+Format visuals using the Format pane to adjust colors, labels, and titles.
+4.2 Implement Slicers and Filters
+
+Add Slicers:
+
+Go to Visualizations pane and select Slicer.
+Drag fields like ProductCategory or Region to the Values field.
+Add Filters:
+
+Use the Filters pane to add filters for the entire page or individual visuals.
+Drill Down:
+
+Enable drill-down capabilities in charts by setting hierarchies (e.g., Year > Quarter > Month).
+5. Report Sharing
+5.1 Publish to Power BI Service
+
+Save and Publish Report:
+
+Go to Home > Publish.
+Sign in to your Power BI account and select a workspace to publish your report.
+Configure Sharing Settings:
+
+Share Report:
+
+In Power BI Service, navigate to the workspace and select your report.
+Click Share and enter the email addresses of users you want to share with.
+Set permissions (e.g., view or edit).
+Set Up Row-Level Security (RLS):
+
+In Power BI Service, go to Modeling > Manage Roles.
+Define roles and DAX expressions to restrict data access based on user roles.
+Summary
+Data Import: Load data from Excel and SQL databases.
+Data Transformation: Clean and transform data using Power Query, merge tables, and create calculated columns.
+Data Modeling: Establish relationships between tables and create measures using DAX for KPIs.
+Visualization: Design interactive dashboards with various charts and slicers. Implement filters and drill-downs.
+Report Sharing: Publish the dashboard to Power BI Service and configure sharing and security settings.
