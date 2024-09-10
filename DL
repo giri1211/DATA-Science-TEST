@@ -1,0 +1,92 @@
+pip install tensorflow keras pillow
+
+import tensorflow as tf
+from PIL import Image
+import numpy as np
+import os
+
+
+dataset_path = 'path/to/your/dataset'
+
+def resize_image(image_path, size=(224, 224)):
+    with Image.open(image_path) as img:
+        img = img.resize(size, Image.ANTIALIAS)
+        return np.array(img)
+
+image_path = os.path.join(dataset_path, 'sample_image.jpg')
+resized_image = resize_image(image_path)
+
+def normalize_image(image_array):
+    return image_array / 255.0
+
+normalized_image = normalize_image(resized_image)
+
+def load_and_preprocess_image(file_path):
+    image = tf.io.read_file(file_path)
+    image = tf.image.decode_jpeg(image, channels=3)
+    
+    image = tf.image.resize(image, [224, 224])
+    
+    image = image / 255.0
+    
+    return image
+
+def load_dataset(image_dir, batch_size=32):
+    dataset = tf.data.Dataset.list_files(os.path.join(image_dir, '*/*.jpg'))
+    dataset = dataset.map(lambda x: (load_and_preprocess_image(x), tf.strings.regex_replace(x, '.*/([^/]+)\\.jpg$', '\\1')))
+    dataset = dataset.batch(batch_size)
+    return dataset
+
+train_dataset = load_dataset('path/to/train_dataset')
+
+def augment_image(image):
+  
+    image = tf.image.random_rotation(image, 30)
+    
+    image = tf.image.random_flip_left_right(image)
+
+    image = tf.image.random_flip_up_down(image)
+      
+    image = tf.image.random_brightness(image, max_delta=0.1) 
+   
+    image = tf.image.random_contrast(image, lower=0.7, upper=1.3)
+    
+    return image
+
+def preprocess_and_augment_image(file_path):
+    image = load_and_preprocess_image(file_path)
+    image = augment_image(image)
+    return image
+
+def load_and_augment_dataset(image_dir, batch_size=32):
+    dataset = tf.data.Dataset.list_files(os.path.join(image_dir, '*/*.jpg'))
+    dataset = dataset.map(lambda x: (preprocess_and_augment_image(x), tf.strings.regex_replace(x, '.*/([^/]+)\\.jpg$', '\\1')))
+    dataset = dataset.batch(batch_size)
+    return dataset
+
+augmented_train_dataset = load_and_augment_dataset('path/to/train_dataset')
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
+
+model = Sequential([
+    Conv2D(32, (3, 3), activation='relu', input_shape=(224, 224, 3)),
+    MaxPooling2D((2, 2)),
+    Conv2D(64, (3, 3), activation='relu'),
+    MaxPooling2D((2, 2)),
+    Conv2D(128, (3, 3), activation='relu'),
+    MaxPooling2D((2, 2)),
+    Flatten(),
+    Dense(512, activation='relu'),
+    Dense(10, activation='softmax')  # Assuming 10 classes
+])
+
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+model.fit(augmented_train_dataset, epochs=10)
+
+
+
+
