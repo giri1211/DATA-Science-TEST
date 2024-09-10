@@ -1,0 +1,90 @@
+GIT Command Prompt Code:
+
+mkdir project-name
+cd project-name
+git init
+
+{
+Python
+__pycache__/
+*.pyc
+*.pyo
+
+Environment
+.env
+
+IDEs
+.vscode/
+.idea/
+}
+
+git add .gitignore README.md
+git commit -m "Initial commit with .gitignore and README.md"
+git remote add origin https://github.com/username/project-name.git
+git push -u origin master
+
+git checkout -b develop
+git push -u origin develop
+
+git checkout -b feature/feature-name
+
+git add .
+git commit -m "Add feature X"
+
+git push -u origin feature/feature-name
+
+git branch -d feature/feature-name
+git push origin --delete feature/feature-name
+
+git checkout -b release/v1.0.0 develop
+
+git checkout master
+git merge release/v1.0.0
+git tag v1.0.0
+git push origin master --tags
+
+git checkout develop
+git merge release/v1.0.0
+git push origin develop
+
+git checkout -b hotfix/fix-issue master
+
+git add .
+git commit -m "Fix critical issue"
+git checkout master
+git merge hotfix/fix-issue
+git tag v1.0.1
+git push origin master --tags
+
+git checkout develop
+git merge hotfix/fix-issue
+git push origin develop
+
+git commit -m "Fix bug in user login validation"
+
+git commit -m "Fix stuff"
+
+git rebase -i HEAD~n
+
+git push origin branch-name --force
+
+git fetch origin
+git checkout develop
+git pull
+
+git checkout feature/feature-name
+git merge develop
+
+git add resolved-file
+git commit
+git push
+
+git remote add origin https://github.com/username/project-name.git
+
+git push origin branch-name
+
+git tag v1.0.0 -m "Release version 1.0.0"
+
+git push origin v1.0.0
+
+
