@@ -1,0 +1,67 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import LabelEncoder
+
+df = pd.read_csv('customer_churn.csv
+
+print(df.isnull().sum())
+
+df['NumericalFeature'].fillna(df['NumericalFeature'].median(), inplace=True)
+
+df['CategoricalFeature'].fillna(df['CategoricalFeature'].mode()[0], inplace=True)
+
+sns.boxplot(x=df['NumericalFeature'])
+plt.show()
+
+Q1 = df['NumericalFeature'].quantile(0.25)
+Q3 = df['NumericalFeature'].quantile(0.75)
+IQR = Q3 - Q1
+df = df[(df['NumericalFeature'] >= (Q1 - 1.5 * IQR)) & (df['NumericalFeature'] <= (Q3 + 1.5 * IQR))]
+
+df['NumericalFeature'] = df['NumericalFeature'].clip(lower=df['NumericalFeature'].quantile(0.01),
+                                                    upper=df['NumericalFeature'].quantile(0.99))
+
+
+le = LabelEncoder()
+df['CategoricalFeature'] = le.fit_transform(df['CategoricalFeature'])
+
+df = pd.get_dummies(df, columns=['CategoricalFeature'])
+
+
+
+scaler = StandardScaler()
+df[['NumericalFeature1', 'NumericalFeature2']] = scaler.fit_transform(df[['NumericalFeature1', 'NumericalFeature2']])
+
+
+
+scaler = MinMaxScaler()
+df[['NumericalFeature1', 'NumericalFeature2']] = scaler.fit_transform(df[['NumericalFeature1', 'NumericalFeature2']])
+
+df['StartDate'] = pd.to_datetime(df['StartDate'])
+df['CurrentDate'] = pd.to_datetime(df['CurrentDate'])
+df['Tenure'] = (df['CurrentDate'] - df['StartDate']).dt.days
+
+df['AverageSpend'] = df['TotalSpend'] / df['NumberOfTransactions']
+
+df['LastPurchaseDate'] = pd.to_datetime(df['LastPurchaseDate'])
+df['Recency'] = (df['CurrentDate'] - df['LastPurchaseDate']).dt.days
+
+df['PurchaseFrequency'] = df['NumberOfTransactions'] / df['Tenure']
+
+df['SpendCategory'] = pd.cut(df['TotalSpend'], bins=[0, 100, 500, 1000, np.inf], labels=['Low', 'Medium', 'High', 'Very High'])
+
+df.drop(columns=['StartDate', 'CurrentDate', 'LastPurchaseDate'], inplace=True)
+
+X = df.drop(columns=['Churn'])  # Features
+y = df['Churn']  
+
+
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+
+
