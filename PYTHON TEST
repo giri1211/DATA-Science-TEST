@@ -1,0 +1,209 @@
+class Book:
+    def __init__(self, book_id, title, author, genre, copies):
+        self.book_id = book_id
+        self.title = title
+        self.author = author
+        self.genre = genre
+        self.copies = copies
+
+    def update_copies(self, num):
+        self.copies += num
+
+    def __str__(self):
+        return f"{self.title} by {self.author} (Genre: {self.genre}, Copies: {self.copies})"
+
+class Member:
+    def __init__(self, member_id, name, email):
+        self.member_id = member_id
+        self.name = name
+        self.email = email
+        self.borrowed_books = {}
+
+    def update_details(self, name=None, email=None):
+        if name:
+            self.name = name
+        if email:
+            self.email = email
+
+    def borrow_book(self, book_id, due_date):
+        self.borrowed_books[book_id] = due_date
+
+    def return_book(self, book_id):
+        if book_id in self.borrowed_books:
+            del self.borrowed_books[book_id]
+
+    def __str__(self):
+        return f"{self.name} ({self.email})"
+from datetime import datetime
+
+class Loan:
+    def __init__(self, book_id, member_id, due_date):
+        self.book_id = book_id
+        self.member_id = member_id
+        self.due_date = datetime.strptime(due_date, "%Y-%m-%d")
+        self.returned = False
+
+    def mark_as_returned(self):
+        self.returned = True
+
+    def is_overdue(self):
+        return not self.returned and datetime.now() > self.due_date
+import json
+
+class Library:
+    def __init__(self):
+        self.books = {}
+        self.members = {}
+        self.loans = []
+
+    def add_book(self, book):
+        self.books[book.book_id] = book
+
+    def remove_book(self, book_id):
+        if book_id in self.books:
+            del self.books[book_id]
+
+    def update_book(self, book_id, title=None, author=None, genre=None, copies=None):
+        book = self.books.get(book_id)
+        if book:
+            if title:
+                book.title = title
+            if author:
+                book.author = author
+            if genre:
+                book.genre = genre
+            if copies is not None:
+                book.copies = copies
+
+    def register_member(self, member):
+        self.members[member.member_id] = member
+
+    def update_member(self, member_id, name=None, email=None):
+        member = self.members.get(member_id)
+        if member:
+            member.update_details(name, email)
+
+    def borrow_book(self, book_id, member_id, due_date):
+        book = self.books.get(book_id)
+        member = self.members.get(member_id)
+        if book and member and book.copies > 0:
+            book.update_copies(-1)
+            member.borrow_book(book_id, due_date)
+            self.loans.append(Loan(book_id, member_id, due_date))
+
+    def return_book(self, book_id, member_id):
+        member = self.members.get(member_id)
+        if member:
+            member.return_book(book_id)
+            for loan in self.loans:
+                if loan.book_id == book_id and loan.member_id == member_id:
+                    loan.mark_as_returned()
+                    break
+            book = self.books.get(book_id)
+            if book:
+                book.update_copies(1)
+
+    def search_books(self, title=None, author=None, genre=None):
+        results = []
+        for book in self.books.values():
+            if (title and title.lower() in book.title.lower()) or \
+               (author and author.lower() in book.author.lower()) or \
+               (genre and genre.lower() in book.genre.lower()):
+                results.append(book)
+        return results
+
+    def overdue_books_report(self):
+        overdue_loans = [loan for loan in self.loans if loan.is_overdue()]
+        report = {}
+        for loan in overdue_loans:
+            book = self.books.get(loan.book_id)
+            member = self.members.get(loan.member_id)
+            if book and member:
+                report[book.title] = member.name
+        return report
+
+    def most_borrowed_books_report(self):
+        borrow_count = {}
+        for loan in self.loans:
+            if loan.book_id not in borrow_count:
+                borrow_count[loan.book_id] = 0
+            borrow_count[loan.book_id] += 1
+        sorted_books = sorted(borrow_count.items(), key=lambda x: x[1], reverse=True)
+        report = {}
+        for book_id, count in sorted_books:
+            book = self.books.get(book_id)
+            if book:
+                report[book.title] = count
+        return report
+
+    def save_to_file(self, filename):
+        data = {
+            'books': [vars(book) for book in self.books.values()],
+            'members': [vars(member) for member in self.members.values()],
+            'loans': [{'book_id': loan.book_id, 'member_id': loan.member_id, 'due_date': loan.due_date.strftime('%Y-%m-%d'), 'returned': loan.returned} for loan in self.loans]
+        }
+        with open(filename, 'w') as file:
+            json.dump(data, file)
+
+    def load_from_file(self, filename):
+        with open(filename, 'r') as file:
+            data = json.load(file)
+        self.books = {book['book_id']: Book(**book) for book in data['books']}
+        self.members = {member['member_id']: Member(**member) for member in data['members']}
+        self.loans = [Loan(**loan) for loan in data['loans']]
+def main():
+    library = Library()
+    library.load_from_file('library_data.json')
+
+    while True:
+        print("Library System")
+        print("1. Add Book")
+        print("2. Remove Book")
+        print("3. Update Book")
+        print("4. Register Member")
+        print("5. Update Member")
+        print("6. Borrow Book")
+        print("7. Return Book")
+        print("8. Search Books")
+        print("9. Overdue Books Report")
+        print("10. Most Borrowed Books Report")
+        print("11. Save and Exit")
+        choice = input("Choose an option: ")
+
+        if choice == '1':
+            # Add Book
+            pass
+        elif choice == '2':
+            # Remove Book
+            pass
+        elif choice == '3':
+            # Update Book
+            pass
+        elif choice == '4':
+            # Register Member
+            pass
+        elif choice == '5':
+            # Update Member
+            pass
+        elif choice == '6':
+            # Borrow Book
+            pass
+        elif choice == '7':
+            # Return Book
+            pass
+        elif choice == '8':
+            # Search Books
+            pass
+        elif choice == '9':
+            # Overdue Books Report
+            pass
+        elif choice == '10':
+            # Most Borrowed Books Report
+            pass
+        elif choice == '11':
+            # Save and Exit
+            library.save_to_file('library_data.json')
+            break
+
+if __name__ == "__main__":
+    main()
